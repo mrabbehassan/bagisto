@@ -25,79 +25,39 @@ class DatabaseManager
         return $this->migrate($outputLog);
     }
 
-    // public function getEnvironment($params = [])
-    // {
-    //     dd(env("DB_HOST"));
-    //     $connection = [
-    //         'DB_HOST' => $params['DB_HOST'] ?? env("DB_HOST"),
-    //         'DB_DATABASE' => $params['DB_DATABASE'] ?? env("DB_DATABASE"),
-    //         'DB_USERNAME' => $params['DB_USERNAME'] ?? env("DB_USERNAME"),
-    //         'DB_PASSWORD' => $params['DB_PASSWORD'] ?? env("DB_PASSWORD"),
-    //         'DB_CONNECTION' => $params['DB_CONNECTION'] ?? env("DB_CONNECTION"),
-    //         'DB_PORT' => $params['DB_PORT'] ?? env("DB_PORT"),
-    //         'DB_PREFIX' => $params['DB_PREFIX'] ?? env("DB_PREFIX")
-    //     ];
-
-    //     dd($connection);
-
-
-    //     try {
-    //         $database = DB::connection()->getDatabaseName();
-    //         if (! file_exists($database)) {
-    //             touch($database);
-    //             DB::reconnect(Config::get('database.default'));
-
-    //             return $connection;
-    //         }
-    //     } catch (\Throwable $th) {
-    //         dd($th);
-    //     }
-    // }
-    
-    // use Illuminate\Support\Facades\DB;
     public function getEnvironment($params = [])
     {
+        $connection = [
+            'DB_HOST'       => $params['DB_HOST'] ?? env('DB_HOST'),
+            'DB_DATABASE'   => $params['DB_DATABASE'] ?? env('DB_DATABASE'),
+            'DB_USERNAME'   => $params['DB_USERNAME'] ?? env('DB_USERNAME'),
+            'DB_PASSWORD'   => $params['DB_PASSWORD'] ?? env('DB_PASSWORD'),
+            'DB_CONNECTION' => $params['DB_CONNECTION'] ?? env('DB_CONNECTION'),
+            'DB_PORT'       => $params['DB_PORT'] ?? env('DB_PORT'),
+            'DB_PREFIX'     => $params['DB_PREFIX'] ?? env('DB_PREFIX'),
+        ];
 
         try {
             DB::connection()->getPdo();
             if (DB::connection()->getDatabaseName()) {
-                echo "Database connection established successfully.";
+                echo 'Database connection established successfully.';
             } else {
-                echo "Database not found.";
+                $database = DB::connection()->getDatabaseName();
+
+                if (! file_exists($database)) {
+                    touch($database);
+                    DB::reconnect(Config::get('database.default'));
+
+                    return $connection;
+                }
             }
         } catch (\Exception $e) {
         }
-
-        // $defaultEnv = [
-        //     'DB_HOST' => env('DB_HOST'),
-        //     'DB_DATABASE' => env('DB_DATABASE'),
-        //     'DB_USERNAME' => env('DB_USERNAME'),
-        //     'DB_PASSWORD' => env('DB_PASSWORD'),
-        //     'DB_CONNECTION' => env('DB_CONNECTION'),
-        //     'DB_PORT' => env('DB_PORT'),
-        //     'DB_PREFIX' => env('DB_PREFIX'),
-        // ];
-
-        // $connection = array_merge($defaultEnv, $params);
-
-        // try {
-        //     $database = DB::connection()->getDatabaseName();
-        //     if (! file_exists($database)) {
-        //         DB::reconnect(Config::get('database.default'));
-        //     }
-        // } catch (\Throwable $th) {
-        //     dd($th);
-        // }
-        // dd($connection);
-
-        // return $connection;
     }
-
 
     /**
      * Run the migration and call the seeder.
      *
-     * @param \Symfony\Component\Console\Output\BufferedOutput $outputLog
      * @return array
      */
     private function migrate(BufferedOutput $outputLog)
@@ -114,7 +74,6 @@ class DatabaseManager
     /**
      * Seed the database.
      *
-     * @param \Symfony\Component\Console\Output\BufferedOutput $outputLog
      * @return array
      */
     private function seed(BufferedOutput $outputLog)
@@ -131,24 +90,21 @@ class DatabaseManager
     /**
      * Return a formatted error messages.
      *
-     * @param string $message
-     * @param string $status
-     * @param \Symfony\Component\Console\Output\BufferedOutput $outputLog
+     * @param  string  $message
+     * @param  string  $status
      * @return array
      */
     private function response($message, $status, BufferedOutput $outputLog)
     {
         return [
-            'status' => $status,
-            'message' => $message,
+            'status'      => $status,
+            'message'     => $message,
             'dbOutputLog' => $outputLog->fetch(),
         ];
     }
 
     /**
      * Check database type. If SQLite, then create the database file.
-     *
-     * @param \Symfony\Component\Console\Output\BufferedOutput $outputLog
      */
     private function sqlite(BufferedOutput $outputLog)
     {
@@ -158,7 +114,7 @@ class DatabaseManager
                 touch($database);
                 DB::reconnect(Config::get('database.default'));
             }
-            $outputLog->write('Using SqlLite database: '.$database, 1);
+            $outputLog->write('Using SqlLite database: ' . $database, 1);
         }
     }
 }

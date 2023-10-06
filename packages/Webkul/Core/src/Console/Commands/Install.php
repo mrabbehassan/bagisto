@@ -73,21 +73,30 @@ class Install extends Command
         $result = shell_exec('composer dump-autoload');
         $this->info($result);
 
+        // removing the installer directory
+        if (is_dir('public/installer')) {
+            if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+                shell_exec('rmdir /s/q public\\installer');
+            } else {
+                shell_exec('rm -rf public/installer');
+            }
+        }
+
         // final information
         $this->info('-----------------------------');
         $this->info('Congratulations!');
         $this->info('The installation has been finished and you can now use Bagisto.');
-        $this->info('Go to '. url(config('app.admin_url')) .' and authenticate with:');
+        $this->info('Go to ' . url(config('app.admin_url')) . ' and authenticate with:');
         $this->info('Email: admin@example.com');
         $this->info('Password: admin123');
         $this->info('Cheers!');
     }
 
     /**
-    *  Checking .env file and if not found then create .env file.
-    *  Then ask for database name, password & username to set
-    *  On .env file so that we can easily migrate to our db.
-    */
+     *  Checking .env file and if not found then create .env file.
+     *  Then ask for database name, password & username to set
+     *  On .env file so that we can easily migrate to our db.
+     */
     protected function checkForEnvFile()
     {
         $envExists = File::exists(base_path() . '/.env');
@@ -110,11 +119,11 @@ class Install extends Command
         try {
             File::copy('.env.example', '.env');
 
-            $default_app_url =  'http://localhost:8000';
+            $default_app_url = 'http://localhost:8000';
             $input_app_url = $this->ask('Please Enter the APP URL : ');
-            $this->envUpdate('APP_URL=', $input_app_url ? $input_app_url : $default_app_url );
+            $this->envUpdate('APP_URL=', $input_app_url ? $input_app_url : $default_app_url);
 
-            $default_admin_url =  'admin';
+            $default_admin_url = 'admin';
             $input_admin_url = $this->ask('Please Enter the Admin URL : ');
             $this->envUpdate('APP_ADMIN_URL=', $input_admin_url ?: $default_admin_url);
 
