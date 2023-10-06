@@ -20,8 +20,6 @@ class DatabaseManager
     {
         $outputLog = new BufferedOutput;
 
-        $this->sqlite($outputLog);
-
         return $this->migrate($outputLog);
     }
 
@@ -101,20 +99,5 @@ class DatabaseManager
             'message'     => $message,
             'dbOutputLog' => $outputLog->fetch(),
         ];
-    }
-
-    /**
-     * Check database type. If SQLite, then create the database file.
-     */
-    private function sqlite(BufferedOutput $outputLog)
-    {
-        if (DB::connection() instanceof SQLiteConnection) {
-            $database = DB::connection()->getDatabaseName();
-            if (! file_exists($database)) {
-                touch($database);
-                DB::reconnect(Config::get('database.default'));
-            }
-            $outputLog->write('Using SqlLite database: ' . $database, 1);
-        }
     }
 }

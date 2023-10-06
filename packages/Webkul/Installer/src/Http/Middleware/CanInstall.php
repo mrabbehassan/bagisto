@@ -2,16 +2,25 @@
 
 namespace Webkul\Installer\Http\Middleware;
 
+use Closure;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+
 class CanInstall
 {
-
-    public function handle()
+    public function handle(Request $request, Closure $next)
     {
-        if ($this->isAlreadyInstalled()) {
-            return redirect()->route('shop.home.index');
+        if (Str::contains($request->getPathInfo(), '/install')) {
+            if ($this->isAlreadyInstalled()) {
+                return redirect()->route('shop.home.index');
+            }
+        } else {
+            if (! $this->isAlreadyInstalled()) {
+                return redirect()->route('installer.index');
+            }
         }
 
-        return redirect()->route('installer.index');
+        return $next($request);
     }
 
     /**
